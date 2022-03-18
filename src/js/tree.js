@@ -2,20 +2,29 @@
 import {Branch} from './branch.js';
 
 export class Tree {
-    constructor(ctx, postX, postY) {
+    constructor(ctx, posX, posY) {
         this.ctx = ctx;
-        this.postX = postX;
-        this.postY = postY;
+        this.posX = posX;
+        this.posY = posY;
         this.branches = []; // 가지 배열 
         this.depth = 10; // 늘어날수록 몸통 굵어짐? 왜
+
+        this.cntDepth = 0; // depth별로 그리기 위해 현재 depth 변수 선언
+        this.animation = null; // 현재 동작하는 애니메이션
 
         this.init();
     }
 
     init() {
+
+        // depth별로 가지 저장 위해 branches에 depth만큼 빈 배열 추가
+        for (let i=0; i<this.depth; i++) {
+            this.branches.push([]);
+        }
+
         // 시작 각도는 -90도를 주어 아래에서 위로 기중 자라도록
-        this.createBranch(this.postX, this.postY, -90, 0);
-        this.draw(this.ctx);
+        this.createBranch(this.posX, this.posY, -90, 0);
+        this.draw();
     }
 
     createBranch(startX, startY, angle, depth) {
@@ -30,7 +39,7 @@ export class Tree {
         const endX = startX + this.cos(angle) * len * (this.depth - depth);
         const endY = startY + this.sin(angle) * len * (this.depth - depth);
 
-        this.branches.push(new Branch(startX, startY, endX, endY, this.depth - depth));
+        this.branches[depth].push(new Branch(startX, startY, endX, endY, this.depth - depth));
 
         // this.createBranch(endX, endY, angle - 30, depth + 1);
         // this.createBranch(endX, endY, angle + 30, depth + 1); // 양쪽으로 가지 2개
@@ -41,10 +50,25 @@ export class Tree {
 
     }
 
-    draw(ctx) {
-        for (let i=0; i<this.branches.length; i++) {
-            this.branches[i].draw(ctx);
+    draw() {
+        // 다 그렸으면 requestAnimationFrame 중단 해 메모리 누수 없게 함.
+        if (this.cntDepth === this.depth) {
+            cancelAnimationFrame(this.animation);
         }
+
+        // depth별로 가지를 그리기
+        for (let i=this.cntDepth; i<this.branches.length; i++) {
+            let pass = true;
+
+            for (let j=0; j<this.branches[i].length; j++) {
+                pass = this.branches[i][j].draw(this.ctx);
+            }
+
+            if (!pass) break;
+            this.cntDepth++;
+        }
+
+        this.animation = requestAnimationFrame(this.draw.bind(this));
     }
 
     cos(angle) {

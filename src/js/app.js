@@ -11,6 +11,8 @@ class App {
         this.pixelRatio = window.devicePixelRatio > 1 ? 2 : 1;
 
         window.addEventListener('resize', this.resize.bind(this), false);
+        // 클릭 이벤트
+        window.addEventListener('click', this.click.bind(this), false);
         this.resize();
 
         new Tree(this.ctx, this.stageWidth/2, this.stageHeight); // 화면 중간에 생성
@@ -27,6 +29,11 @@ class App {
 
         // 리사이즈시 캔버스를 비워줌
         this.ctx.clearRect(0, 0, this.stageWidth, this.stageHeight);
+    }
+
+    click(event) {
+        const {clientX} = event;
+        new Tree(this.ctx, clientX, this.stageHeight);
     }
 }
 

@@ -38,6 +38,20 @@ canvas {
   top: 20px;
 }
 
+.day,
+.night {
+  cursor: pointer;
+}
+
+.day {
+  color: #ffffff;
+}
+
+.night span,
+.day span {
+  font-size: 50px;
+}
+
 .black {
   background-color: #000000;
 }
